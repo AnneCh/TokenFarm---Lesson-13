@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; // only using the interface as we don't need the whole contract
+import "@chainlink/contracts/src/interfaces/AggregatorV3Inerface.sol";
 
 contract TokenFarm is Ownable {
     // We want this contract to:
@@ -24,6 +25,17 @@ contract TokenFarm is Ownable {
     mapping(address => uint256) public uniqueTokensStaked;
     // we cannot loop thru a mapping, so we need to create a stakers' array to loop thru
     address[] public stakers;
+    IERC20 public dappToken;
+    mapping(address => address) public tokenPriceFeedMapping;
+
+    // the constructor will get the address of the token to be awarded
+    constructor(address _dappTokenAddress) public {
+        dappToken = IERC20(_dappTokenAddress);
+    }
+
+    function setPriceFeedContract(address _token, address _priceFeed) public onlyOwner {
+        tokenPriceFeedMapping[_token] = _priceFeed;
+    }
 
     function stakeTokens(uint256 _amount, address _token) public {
         // what tokens can they stake?
@@ -46,6 +58,55 @@ contract TokenFarm is Ownable {
         if (uniqueTokensStaked[msg.sender] == 1) {
             stakers.push(msg.sender);
         }
+    }
+
+    function issueTokens() public onlyOwner {
+        // Issue tokens for all stakers 
+        for(
+            uint256 stakersIndex = 0;
+            stakersIndex < stakers.length;
+            stakersIndex++
+        ){
+            address recipient = stakers[stakersIndex];
+            uint256 userTotalValue = getUserTotalValue(recipient)
+            // send them a token reward based
+            // on their total value locked
+            //dappToken.transfer(recipient, )
+        }
+    }
+
+// in most concrete cases, we would not have a function looping thru everything and
+// issuing the reward token.
+// instead, the user would claim their reward, it's much more gas efficient
+
+    function getUserTotalValue(address _user) public view returns (uint256){
+        uint256 totalValue = 0;
+        require(uniqueTokensStaked[_user] > 0, "No tokens staked!");
+        for (uint256 allowedTokensIndex = 0; allowedTokensIndex < allowedTokens.length;
+        allowedTokens++) {
+            totalValue = totalValue + getUserSingleTokenValue(_user, allowedTokens[allowedTokensIndex])
+        }
+    }
+
+    function getUserSingleTokenValue(address _user, address _token) public view returns(uint256) {
+        // get the conversion rate of each token's staked
+        if (uniqueTokensStaked[_user] <= 0){
+            return 0;
+        }
+        // we want to get the price of the token * stakingBalance[_token][user]
+        (uint256 price, uint256 decimals) = getTokenValue(_token);
+        return(stakingBalance[token][user] * price / 10**decimals);
+    }
+
+    function getTokenValue(address _token) public view returns (uint256, uint256) {
+        // chainlink priceFeedAddress => need some mapping that will link each token 
+        // to their priceFeedAddress
+        address priceFeedAddress = tokenPriceFeedMapping[_token];
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
+        (,int256 price,,,,) = priceFeed.latestRoundData(); 
+        // we need to know the decimals to match everything to use the same units
+        uint256 decimals = uint256(priceFeed.decimals());
+        return (uint256(price), decimals);
     }
 
     function updateUniqueTokensStaked(address _user, address _token) internal {
