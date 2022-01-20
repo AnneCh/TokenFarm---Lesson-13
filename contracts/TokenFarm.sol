@@ -5,20 +5,19 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol"; // only using the interface as we don't need the whole contract
-import "@chainlink/contracts/src/interfaces/AggregatorV3Inerface.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
+// We want this contract to:
+// stakeTokens
+// unStakeTokens
+// issueTokens (reward tokens)
+// addAllowedTokens (allow more tokens to be staked)
+// getEthValue (chainlink to get the current ETH price)
+
+// issueTokens will solve the issue of how much DAPP do we give as a reward:
+// is staker stakes 50 ETH and 50 DAI, and we want to give a reward of 1 DAPP/1 DAI
+// what if staker stakes 100 ETH
 contract TokenFarm is Ownable {
-    // We want this contract to:
-    // stakeTokens
-    // unStakeTokens
-    // issueTokens (reward tokens)
-    // addAllowedTokens (allow more tokens to be staked)
-    // getEthValue (chainlink to get the current ETH price)
-
-    // issueTokens will solve the issue of how much DAPP do we give as a reward:
-    // is staker stakes 50 ETH and 50 DAI, and we want to give a reward of 1 DAPP/1 DAI
-    // what if staker stakes 100 ETH
-
     address[] public allowedTokens;
     // mapping token address => staker address => amount
     mapping(address => mapping(address => uint256)) public stakingBalance;
@@ -33,7 +32,10 @@ contract TokenFarm is Ownable {
         dappToken = IERC20(_dappTokenAddress);
     }
 
-    function setPriceFeedContract(address _token, address _priceFeed) public onlyOwner {
+    function setPriceFeedContract(address _token, address _priceFeed)
+        public
+        onlyOwner
+    {
         tokenPriceFeedMapping[_token] = _priceFeed;
     }
 
@@ -61,49 +63,68 @@ contract TokenFarm is Ownable {
     }
 
     function issueTokens() public onlyOwner {
-        // Issue tokens for all stakers 
-        for(
+        // Issue tokens for all stakers
+        for (
             uint256 stakersIndex = 0;
             stakersIndex < stakers.length;
             stakersIndex++
-        ){
+        ) {
             address recipient = stakers[stakersIndex];
-            uint256 userTotalValue = getUserTotalValue(recipient)
+            uint256 userTotalValue = getUserTotalValue(recipient);
             // send them a token reward based
             // on their total value locked
-            //dappToken.transfer(recipient, )
+            dappToken.transfer(recipient, userTotalValue);
         }
     }
 
-// in most concrete cases, we would not have a function looping thru everything and
-// issuing the reward token.
-// instead, the user would claim their reward, it's much more gas efficient
+    // in most concrete cases, we would not have a function looping thru everything and
+    // issuing the reward token.
+    // instead, the user would claim their reward, it's much more gas efficient
 
-    function getUserTotalValue(address _user) public view returns (uint256){
+    function getUserTotalValue(address _user) public view returns (uint256) {
         uint256 totalValue = 0;
         require(uniqueTokensStaked[_user] > 0, "No tokens staked!");
-        for (uint256 allowedTokensIndex = 0; allowedTokensIndex < allowedTokens.length;
-        allowedTokens++) {
-            totalValue = totalValue + getUserSingleTokenValue(_user, allowedTokens[allowedTokensIndex])
+        for (
+            uint256 allowedTokensIndex = 0;
+            allowedTokensIndex < allowedTokens.length;
+            allowedTokens++
+        ) {
+            totalValue =
+                totalValue +
+                getUserSingleTokenValue(
+                    _user,
+                    allowedTokens[allowedTokensIndex]
+                );
         }
+        return totalValue;
     }
 
-    function getUserSingleTokenValue(address _user, address _token) public view returns(uint256) {
+    function getUserSingleTokenValue(address _user, address _token)
+        public
+        view
+        returns (uint256)
+    {
         // get the conversion rate of each token's staked
-        if (uniqueTokensStaked[_user] <= 0){
+        if (uniqueTokensStaked[_user] <= 0) {
             return 0;
         }
         // we want to get the price of the token * stakingBalance[_token][user]
         (uint256 price, uint256 decimals) = getTokenValue(_token);
-        return(stakingBalance[token][user] * price / 10**decimals);
+        return ((stakingBalance[_token][_user] * price) / 10**decimals);
     }
 
-    function getTokenValue(address _token) public view returns (uint256, uint256) {
-        // chainlink priceFeedAddress => need some mapping that will link each token 
+    function getTokenValue(address _token)
+        public
+        view
+        returns (uint256, uint256)
+    {
+        // chainlink priceFeedAddress => need some mapping that will link each token
         // to their priceFeedAddress
         address priceFeedAddress = tokenPriceFeedMapping[_token];
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(priceFeedAddress);
-        (,int256 price,,,,) = priceFeed.latestRoundData(); 
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(
+            priceFeedAddress
+        );
+        (, int256 price, , , , ) = priceFeed.latestRoundData();
         // we need to know the decimals to match everything to use the same units
         uint256 decimals = uint256(priceFeed.decimals());
         return (uint256(price), decimals);
@@ -135,4 +156,19 @@ contract TokenFarm is Ownable {
         // We created a variable allowedTokensIndex that allows us to loop through the list of token
         // addresses, to figure out if the staker's token's address is in the list of allowedTokens
     }
+}
+
+function unStakeTokens(address _token) public {
+    //first fetch this specific staker's token's balance
+    uint256 balance = stakingBalance[_token][msg.sender];
+    require(balance > 0, "Your staking balance cannot be 0");
+    // then we transfer the entire balance to the owner of the msg.sender
+    tx = IERC20(_token).transfer(msg.sender, balance);
+    tx.wait(1);
+    // then we update this specific staker's token's balance to 0, as the balance has been sent
+    stakingBalance[_token][msg.sender] = 0;
+    // now we update the quantity of this token to the mapping uniqueTokensStaked, to remove the token that we just emptied the balance of
+    uniqueTokensStaked[msg.sender] = uniqueTokensStaked[msg.sender] - 1;
+
+    // reentrancy???
 }
