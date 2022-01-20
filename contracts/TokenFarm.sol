@@ -62,6 +62,20 @@ contract TokenFarm is Ownable {
         }
     }
 
+    function unStakeTokens(address _token) public {
+        //first fetch this specific staker's token's balance
+        uint256 balance = stakingBalance[_token][msg.sender];
+        require(balance > 0, "Your staking balance cannot be 0");
+        // then we transfer the entire balance to the owner of the msg.sender
+        IERC20(_token).transfer(msg.sender, balance);
+        // then we update this specific staker's token's balance to 0, as the balance has been sent
+        stakingBalance[_token][msg.sender] = 0;
+        // now we update the quantity of this token to the mapping uniqueTokensStaked, to remove the token that we just emptied the balance of
+        uniqueTokensStaked[msg.sender] = uniqueTokensStaked[msg.sender] - 1;
+
+        // reentrancy???
+    }
+
     function issueTokens() public onlyOwner {
         // Issue tokens for all stakers
         for (
@@ -87,7 +101,7 @@ contract TokenFarm is Ownable {
         for (
             uint256 allowedTokensIndex = 0;
             allowedTokensIndex < allowedTokens.length;
-            allowedTokens++
+            allowedTokensIndex++
         ) {
             totalValue =
                 totalValue +
@@ -124,7 +138,7 @@ contract TokenFarm is Ownable {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(
             priceFeedAddress
         );
-        (, int256 price, , , , ) = priceFeed.latestRoundData();
+        (, int256 price, , , ) = priceFeed.latestRoundData();
         // we need to know the decimals to match everything to use the same units
         uint256 decimals = uint256(priceFeed.decimals());
         return (uint256(price), decimals);
@@ -156,19 +170,4 @@ contract TokenFarm is Ownable {
         // We created a variable allowedTokensIndex that allows us to loop through the list of token
         // addresses, to figure out if the staker's token's address is in the list of allowedTokens
     }
-}
-
-function unStakeTokens(address _token) public {
-    //first fetch this specific staker's token's balance
-    uint256 balance = stakingBalance[_token][msg.sender];
-    require(balance > 0, "Your staking balance cannot be 0");
-    // then we transfer the entire balance to the owner of the msg.sender
-    tx = IERC20(_token).transfer(msg.sender, balance);
-    tx.wait(1);
-    // then we update this specific staker's token's balance to 0, as the balance has been sent
-    stakingBalance[_token][msg.sender] = 0;
-    // now we update the quantity of this token to the mapping uniqueTokensStaked, to remove the token that we just emptied the balance of
-    uniqueTokensStaked[msg.sender] = uniqueTokensStaked[msg.sender] - 1;
-
-    // reentrancy???
 }
