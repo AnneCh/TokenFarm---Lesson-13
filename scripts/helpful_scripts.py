@@ -1,4 +1,13 @@
-from brownie import accounts, network, config, LinkToken, VRFCoordinatorMock, Contract
+from brownie import (
+    accounts,
+    network,
+    config,
+    LinkToken,
+    Contract,
+    MockV3Aggregator,
+    MockDAIFAU,
+    MockWETH,
+)
 from web3 import Web3
 
 FORKED_LOCAL_ENVIRONMENTS = ["mainnet-fork", "mainnet-fork-dev"]
@@ -21,7 +30,13 @@ def get_account(index=None, id=None):
     return accounts.add(config["wallets"]["from_key"])
 
 
-contract_to_mock = {"link_token": LinkToken, "vrf_coordinator": VRFCoordinatorMock}
+contract_to_mock = {
+    "eth_usd_price_feed": MockV3Aggregator,
+    "dai_usd_price_feed": MockV3Aggregator,
+    "fau_token": MockDAIFAU,
+    "weth_token": MockWETH,
+}
+# we also need to make sure we have the usd_price_feed in our mock contracts
 
 
 def get_contract(contract_name):
@@ -63,19 +78,25 @@ def deploy_mocks():
     account = get_account()
     print("Deploying Mock LinkToken...")
     link_token = LinkToken.deploy({"from": account})
-    print(f"Link Token deployed to {link_token.address}")
-    print("Deploying Mock VRF Coordinator...")
-    vrf_coordinator = VRFCoordinatorMock.deploy(link_token.address, {"from": account})
-    print(f"VRFCoordinator deployed to {vrf_coordinator.address}")
-    print("All done!")
+    print("Deploying Mock Price Feed...")
+    mock_price_feed = MockV3Aggregator.deploy(
+        decimals, initial_value, {"from": account}
+    )
+    print(f"Deployed to {mock_price_feed.address}")
+    print("Deploying Mock DAI...")
+    dai_token = MockDAIFAU.deploy({"from": account})
+    print(f"Deployed to {dai_token.address}")
+    print("Deploying Mock WETH...")
+    weth_token = MockWETH.deploy({"from": account})
+    print(f"Deployed to {weth_token.address}")
 
 
-def fund_with_link(
-    contract_address, account=None, link_token=None, amount=Web3.toWei(0.3, "ether")
-):
-    account = account if account else get_account()
-    link_token = link_token if link_token else get_contract("link_token")
-    funding_tx = link_token.transfer(contract_address, amount, {"from": account})
-    funding_tx.wait(1)
-    print(f"Funded {contract_address}")
-    return funding_tx
+# def fund_with_link(
+#    contract_address, account=None, link_token=None, amount=Web3.toWei(0.3, "ether")
+# ):
+#   account = account if account else get_account()
+#   link_token = link_token if link_token else get_contract("link_token")
+#   funding_tx = link_token.transfer(contract_address, amount, {"from": account})
+#   funding_tx.wait(1)
+#   print(f"Funded {contract_address}")
+#   return funding_tx

@@ -1,4 +1,4 @@
-from scripts.helpful_scripts import get_account, config, network
+from scripts.helpful_scripts import get_account, config, network, get_contract
 from brownie import DappToken, TokenFarm
 from web3 import Web3
 
@@ -20,14 +20,27 @@ def deploy_token_farm_and_dapp_token():
     tx.wait(1)
     # we will for now, allow only 3 Tokens to be staked: dapp_token, weth_token, fau_token/dai
     # add weth_token and fau_token to brownie-config
-    
-    add_allowed_tokens(token_farm)
-    
+    # we will deploy mock weth and fau contracts to interact with them during testin
+    weth_token = get_contract("weth_token")
+    fau_token = get_contract("fau_token")
+    dict_of_allowed_tokens = {
+        dapp_token: get_contract(
+            "dai_usd_price_feed"
+        ),  # dai price feed for sake of testing
+        fau_token: get_contract("dai_usd_price_feed"),
+        weth_token: get_contract("eth_usd_price_feed"),
+    }
+
+    add_allowed_tokens(token_farm, dict_of_allowed_tokens, account)
+
+
 # We want to create a function that allows tokens and map them to their priceFeed Address
 
-def add_allowed_tokens(token_farm, dict_of_allowed_tokens, account) {
-    
-}
+
+def add_allowed_tokens(token_farm, dict_of_allowed_tokens, account):
+    # we are gonna loop thru the dictionary and call the add_allowed_tokens function on each
+    for token in dict_of_allowed_tokens:
+        token_farm.addAllowedTokens(token.address, {"from": account})
 
 
 def main():
