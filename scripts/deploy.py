@@ -32,6 +32,10 @@ def deploy_token_farm_and_dapp_token():
     }
 
     add_allowed_tokens(token_farm, dict_of_allowed_tokens, account)
+    return token_farm, dapp_token
+
+
+# by returning token_farm and dapp_token, that allows us to use this deploy script in our tests
 
 
 # We want to create a function that allows tokens and map them to their priceFeed Address
@@ -40,7 +44,13 @@ def deploy_token_farm_and_dapp_token():
 def add_allowed_tokens(token_farm, dict_of_allowed_tokens, account):
     # we are gonna loop thru the dictionary and call the add_allowed_tokens function on each
     for token in dict_of_allowed_tokens:
-        token_farm.addAllowedTokens(token.address, {"from": account})
+        add_tx = token_farm.addAllowedTokens(token.address, {"from": account})
+        add_tx.wait(1)
+        set_tx = token_farm.setPriceFeedContract(
+            token.address, dict_of_allowed_tokens[token], {"from": account}
+        )
+        set_tx.wait(1)
+    return token_farm
 
 
 def main():
