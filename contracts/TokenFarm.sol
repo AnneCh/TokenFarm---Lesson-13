@@ -66,7 +66,7 @@ contract TokenFarm is Ownable {
         //first fetch this specific staker's token's balance
         uint256 balance = stakingBalance[_token][msg.sender];
         require(balance > 0, "Your staking balance cannot be 0");
-        // then we transfer the entire balance to the owner of the msg.sender
+        // then we transfer the entire balance of the staked token
         IERC20(_token).transfer(msg.sender, balance);
         // then we update this specific staker's token's balance to 0, as the balance has been sent
         stakingBalance[_token][msg.sender] = 0;

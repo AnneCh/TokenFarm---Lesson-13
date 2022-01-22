@@ -79,17 +79,27 @@ def test_issue_tokens(amount_staked):
     # test passed
 
 
-# TESTS MADE WITHOUT TUTORIALS in progress
+# TESTS MADE WITHOUT TUTORIALS - in progress
 
 
-def test_unstake_tokens(token_address):
+def test_unstake_tokens():
     # Arrange
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip("Only for local testing!")
     account = get_account()
     # deploy both contracts to unstake the DappToken using the TokenFarm.sol function
-    token_farm, dapp_token = deploy_token_farm_and_dapp_token()
-    # need to make sure there are tokens in
-
+    token_farm, dapp_token = test_stake_tokens(
+        amount_staked
+    )  # had it wrong, had put deploy()
+    # need to make sure there are tokens in the user's balance
+    # dapp_token.balanceOf(account.address) : unecessary because we jave the test above
+    # need to make sure there is a token to unstake :
+    # token_farm.uniqueTokensStaked(account.address) > 0 :unecessary because we jave the test above
+    # Act
+    token_farm.unStakeTokens(dapp_token.address, {"from": account})
+    # Assert
+    assert token_farm.uniqueTokensStaked(account.address) == 0
+    assert dapp_token.balanceOf(account.address) == KEPT_BALANCE
+    assert token_farm.stakingBalance(dapp_token.address, account.address) == 0
     # need stakingBalance[_token][msg.sender]
     # uniqueTokenStaked[_token] == 0
