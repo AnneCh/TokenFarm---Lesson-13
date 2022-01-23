@@ -82,7 +82,7 @@ def test_issue_tokens(amount_staked):
 # TESTS MADE WITHOUT TUTORIALS - in progress
 
 
-def test_unstake_tokens():
+def test_unstake_tokens(amount_staked):
     # Arrange
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip("Only for local testing!")
