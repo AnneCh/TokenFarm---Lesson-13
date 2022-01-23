@@ -1,16 +1,14 @@
 import React from 'react';
-import {DAppProvider, ChainId} from "@usedapp/core"
-import {Header} from "./components/Header"
+import logo from './logo.svg';
+import './App.css';
+import {DAppProvider, ChainId} from '@usedapp/core'
 
 function App() {
   return (
-    <DAppProvider config= {{
+    <DAppProvider config={{
       supportedChains: [ChainId.Kovan, ChainId.Rinkeby]
-    }}> 
-    <Header/>
-      <div>
-        Hello there!
-      </div>
+    }}>
+    <div>Hello World of Crypto!</div>
     </DAppProvider>
   );
 }
