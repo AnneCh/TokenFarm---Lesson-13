@@ -1,6 +1,8 @@
 // this will show what we have in our account, staked and not
 import { useEthers} from "@usedapp/core"
 import helperConfig from "../helper-config.json"
+import brownieConfig from "../brownie-config.json"
+
 
 export const Main = () => {
     // this needs to :
@@ -9,9 +11,10 @@ export const Main = () => {
     // get the balance of the users wallet
     // we need the information stored on the brownie-config.yaml file
     // with addresses for tokens and networks
-    const { chainId } = useEthers()
+    const { chainId, error } = useEthers()
     const networkName = chainId ? helperConfig[chainId] : "dev"
-    console.log(chainId)
+    console.log(typeof chainId)
+
     console.log(networkName)
     //const dappTokenAddress =?
     return (<div>Hello!</div>)
