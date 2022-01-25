@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@usedapp/core": "^0.4.2"
+    "@usedapp/core": "^0.4.2",
+    "ethers": "^5.5.3"
   }
 }

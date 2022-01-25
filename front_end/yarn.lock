@@ -2156,7 +2156,7 @@
     react-is "^16.8.0 || ^17.0.0"
     react-transition-group "^4.4.0"
 
-"@material-ui/lab@^4.0.0-alpha.58":
+"@material-ui/lab@^4.0.0-alpha.60":
   version "4.0.0-alpha.60"
   resolved "https://registry.yarnpkg.com/@material-ui/lab/-/lab-4.0.0-alpha.60.tgz#5ad203aed5a8569b0f1753945a21a05efa2234d2"
   integrity sha512-fadlYsPJF+0fx2lRuyqAuJj7hAS1tLDdIEEdov5jlrpb5pp4b+mRDUqQTUxi4inRZHS1bEXpU8QWUhO6xX88aA==
@@ -3016,10 +3016,10 @@
     "@typescript-eslint/types" "4.33.0"
     eslint-visitor-keys "^2.0.0"
 
-"@usedapp/core@^0.5.4":
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.5.4.tgz#c03b1fa34e4ff658ee2d6a65ac74de46c7ab2b7f"
-  integrity sha512-KAGnH/PA8WBEOR14N9mE3woDXkraVHNVj64XvZTAyxFW9N6rSUX3e6LX85TQ3WRvX1fysppP9433c2ciUrx4Yw==
+"@usedapp/core@^0.4.2":
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/@usedapp/core/-/core-0.4.8.tgz#5ade358c89d6b99bf21e2dc5d4b611a9249c02e4"
+  integrity sha512-Ou3sd+RdxBy+AcoIkLxKZbu9oN3tz+WHOjcyr6uPRK+yn64dwB3OVYfktcwuljUUcCqk6HEClcRzI5lHVLesaA==
   dependencies:
     "@types/react" "17.0.1"
     "@web3-react/core" "6.1.1"
@@ -14797,6 +14797,11 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   integrity sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==
   dependencies:
     minimalistic-assert "^1.0.0"
+
+web-vitals@^2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-2.1.4.tgz#76563175a475a5e835264d373704f9dde718290c"
+  integrity sha512-sVWcwhU5mX6crfI5Vd2dC4qchyTqxV8URinzt25XqVh+bHEPGH4C3NPrNionCP7Obx59wrYEbNlw4Z8sjALzZg==
 
 web3-bzz@1.5.3:
   version "1.5.3"
