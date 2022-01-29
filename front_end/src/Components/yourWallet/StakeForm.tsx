@@ -2,7 +2,7 @@ import { Token} from "../Main"
 import React, {useState, useEffect} from "react"
 import {useEthers, useTokenBalance, useNotifications} from "@usedapp/core"
 import { formatUnits } from "@ethersproject/units"
-import { Button, Input } from "@material-ui/core"
+import { Button, Input, CircularProgress } from "@material-ui/core"
 import {useStakeTokens} from "../../hooks"
 import {utils} from "ethers"
 
@@ -25,11 +25,13 @@ export const StakeForm = ({ token}: StakeFormProps) => {
         console.log(newAmount)
     }
 
-    const {approveAndStake, approveErc20State} = useStakeTokens(tokenAddress)
+    const {approveAndStake, state: approveAndStakeErc20State} = useStakeTokens(tokenAddress)
     const handleStakeSubmit = () => {
         const amountAsWei = utils.parseEther(amount.toString())
         return approveAndStake(amountAsWei.toString())
     }
+    const isMining = approveAndStakeErc20State.status === "Mining"
+
     // lets watch the notifications
     useEffect(() => {
         if (notifications.filter(
@@ -47,6 +49,7 @@ export const StakeForm = ({ token}: StakeFormProps) => {
     }, [notifications])
 
 
+
     // we want to return a button that will allow the user to select the number of tokens
     // they want to stake, need a form for that. input from materialui
     // created a handInputChange to track the number entered 
@@ -59,8 +62,9 @@ export const StakeForm = ({ token}: StakeFormProps) => {
            <Button
                 onClick={handleStakeSubmit}
                 color="primary"
-                size="large">
-                Stake your Tokens!
+                size="large"
+                disabled={isMining}>
+                {isMining ? <CircularProgress size={26} /> : "Stake your TKs!"}
             </Button>
         </div>
     )

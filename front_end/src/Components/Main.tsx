@@ -11,12 +11,21 @@ import dapp from "../dapp.png"
 import weth from "../weth.png"
 import fau from "../fau.png"
 import { YourWallet } from "./yourWallet/YourWallet"
+import {makeStyles} from "@material-ui/core"
 
 export type Token = {
     image: string
     address: string
     name: string
 }
+
+const useStyles = makeStyles((theme) => ({
+    title: {
+        color: theme.palette.common.white, 
+        testAlign: "center",
+        padding: theme.spacing(4)
+    }
+}))
 
 export const Main = () => {
     // this needs to :
@@ -25,6 +34,7 @@ export const Main = () => {
     // get the balance of the users wallet
     // we need the information stored on the brownie-config.yaml file
     // with addresses for tokens and networks
+    const classes = useStyles()
     const { chainId, error } = useEthers()
     const networkName = chainId ? helperConfig[chainId] : "dev"
     // now we want to grab the address of the dappToken that we deployed on our kovan network 
@@ -52,5 +62,8 @@ export const Main = () => {
         
     ]
     // now we can pass the array of tokens to the Wallet
-    return (<YourWallet supportedTokens={supportedTokens}/>)
+    return (<>
+    <h1 className={classes.title}>Hello, you fellow human!</h1>
+    <YourWallet supportedTokens={supportedTokens}/>
+    </>)
 }
