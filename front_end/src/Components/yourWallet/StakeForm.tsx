@@ -2,7 +2,8 @@ import { Token} from "../Main"
 import React, {useState, useEffect} from "react"
 import {useEthers, useTokenBalance, useNotifications} from "@usedapp/core"
 import { formatUnits } from "@ethersproject/units"
-import { Button, Input, CircularProgress } from "@material-ui/core"
+import { Button, Input, CircularProgress, Snackbar } from "@material-ui/core"
+import Alert from "@material-ui/lab/Alert"
 import {useStakeTokens} from "../../hooks"
 import {utils} from "ethers"
 
@@ -31,6 +32,12 @@ export const StakeForm = ({ token}: StakeFormProps) => {
         return approveAndStake(amountAsWei.toString())
     }
     const isMining = approveAndStakeErc20State.status === "Mining"
+    const [showErc20ApprovalSuccess, setShowErc20ApprovalSuccess] = useState(false)
+    const [showStaketokenSuccess, setShowStakeTokenSuccess] = useState(false)
+    const handleCloseSnack = () => {
+        setShowErc20ApprovalSuccess(false)
+        setShowStakeTokenSuccess(false)
+    }
 
     // lets watch the notifications
     useEffect(() => {
@@ -38,15 +45,17 @@ export const StakeForm = ({ token}: StakeFormProps) => {
             (notification) =>
                 notification.type === "transactionSucceed" &&
                 notification.transactionName === "Approve ERC20 transfer").length > 0) {
-                    console.log("Approved!!")
+                    setShowErc20ApprovalSuccess(true)
+                    setShowStakeTokenSuccess(false)
                 }     
         if (notifications.filter(
             (notification) =>
                 notification.type === "transactionSucceed" &&
                 notification.transactionName === "Stake Tokens").length > 0) {
-                    console.log("Tokens Staked!!")
+                    setShowErc20ApprovalSuccess(false)
+                    setShowStakeTokenSuccess(true)
                 }
-    }, [notifications])
+    }, [notifications, showErc20ApprovalSuccess, showStaketokenSuccess])
 
 
 
@@ -56,16 +65,37 @@ export const StakeForm = ({ token}: StakeFormProps) => {
     // nned to create a input hook to send the amount as part of the stake
     // need to call an approve method, and then the Stake method from our TokenFarm.sol
     return(
-        <div>
-            <Input
-                onChange={handleInputChange}/>
-           <Button
-                onClick={handleStakeSubmit}
-                color="primary"
-                size="large"
-                disabled={isMining}>
-                {isMining ? <CircularProgress size={26} /> : "Stake your TKs!"}
-            </Button>
-        </div>
+        <>
+            <div>
+                <Input
+                    onChange={handleInputChange}/>
+            <Button
+                    onClick={handleStakeSubmit}
+                    color="primary"
+                    size="large"
+                    disabled={isMining}>
+                    {isMining ? <CircularProgress size={26} /> : "Stake your TKs!"}
+                </Button>
+            </div>
+            <Snackbar
+                open={ showErc20ApprovalSuccess}
+                autoHideDuration={5000}
+                onClose={handleCloseSnack}
+                >
+                    <Alert onClose={handleCloseSnack} severity="success">
+                        ERC-20 token transfer approved! Yey! Now, 
+                        you go ahead and press those buttons to approve the 2nd transaction... Will you?
+                    </Alert>
+            </Snackbar>
+            <Snackbar
+                open={showStaketokenSuccess}
+                autoHideDuration={5000}
+                onClose={handleCloseSnack}
+                >
+                    <Alert onClose={handleCloseSnack} severity="success">
+                        Tokens Staked! Isn't it exciting, to give your tokens away?
+                    </Alert>
+            </Snackbar>
+        </>
     )
 }

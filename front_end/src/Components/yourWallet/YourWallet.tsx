@@ -1,12 +1,11 @@
 //get the token balances of the tokens we have
-import {Token} from "../Main"
-import React, {useState} from "react"
-import {Box, makeStyles} from "@material-ui/core"
+import { Token } from "../Main"
+import React, { useState } from "react"
+import { Box, makeStyles } from "@material-ui/core"
 import { Tab } from "@material-ui/core"
-import {TabContext, TabList, TabPanel} from "@material-ui/lab"
-import {WalletBalance} from "./WalletBalance"
+import { TabContext, TabList, TabPanel } from "@material-ui/lab"
+import { WalletBalance}  from "./WalletBalance"
 import { StakeForm } from "./StakeForm"
-import { createAssignment } from "typescript"
 
 interface YourWalletProps{
     supportedTokens: Array<Token>
@@ -20,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
         gap: theme.spacing(4)
     },
     box: {
-        backgroundcolor: "white",
+        backgroundColor: "white",
         borderRadius: "25px"
     },
     header: {
@@ -41,7 +40,7 @@ export const YourWallet = ({ supportedTokens}: YourWalletProps) =>{
     // handleChange allows us to select other tokens when selecting other tabs
     return(
         <Box>
-            <h1 className={classes.header}>This belongs to you!</h1>
+            <h1 className={classes.header}>This belongs to you...</h1>
             <Box className={classes.box}>
                 <TabContext value={selectedTokenIndex.toString()}>
                     <TabList onChange={handleChange} aria-label="stake form tabs">
