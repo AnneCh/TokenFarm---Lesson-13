@@ -2,7 +2,7 @@ import { useEthers, useContractFunction } from "@usedapp/core"
 import { constants, utils } from "ethers"
 import TokenFarm from "../chain-info/contracts/TokenFarm.json"
 import ERC20 from "../chain-info/contracts/MockERC20.json"
-import { Contract } from "@ethersproject/contracts"
+import {Contract} from '@usedapp/core/node_modules/@ethersproject/contracts'
 import networkMapping from "../chain-info/deployments/map.json"
 import { useEffect, useState } from "react"
 
@@ -22,8 +22,7 @@ export const useStakeTokens = (tokenAddress : string) => {
     // approve
     const { send: approveErc20Send, state: approveErc20State } =
         useContractFunction(erc20Contract, "approve", {
-            transactionName: "Approve ERC20 transfer",
-        })
+            transactionName: "Approve ERC20 transfer",})
     const approveAndStake = (amount: string) => {
         setAmountToStake(amount)
         return approveErc20Send(tokenFarmAddress, amount)
@@ -33,8 +32,7 @@ export const useStakeTokens = (tokenAddress : string) => {
 
     const { send: stakeSend, state: stakeState} = 
         useContractFunction(tokenFarmContract, "stakeTokens", {
-            transactionName: "Stake Tokens",
-        })
+            transactionName: "Stake Tokens",})
 
     //uesEffect allows us top do something is some variable is changed
     useEffect(() => {

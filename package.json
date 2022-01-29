@@ -3,6 +3,7 @@
     "@ethersproject/bignumber": "^5.5.0",
     "@ethersproject/units": "^5.5.0",
     "@usedapp/core": "^0.4.2",
-    "ethers": "^5.5.3"
+    "ethers": "^5.5.3",
+    "typescript": "^4.5.5"
   }
 }
