@@ -7,6 +7,7 @@ body {
     hsl(266, 24%, 68%),
     hsl(270, 12%, 93%)
   );
+  background-repeat: no-repeat;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
