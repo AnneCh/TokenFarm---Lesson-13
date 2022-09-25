@@ -64,6 +64,7 @@ export const Main = () => {
     // now we can pass the array of tokens to the Wallet
     return (<>
     <h1 className={classes.title}>Hello, you fellow human!</h1>
+    <p>This is a project as part of a learning cursus, some functions may not work</p>
     <YourWallet supportedTokens={supportedTokens}/>
     </>)
 }
